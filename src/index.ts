@@ -1,77 +1,66 @@
+// import type { StorageOptions } from '@google-cloud/storage'
 import type {
   Adapter,
   PluginOptions as CloudStoragePluginOptions,
   CollectionOptions,
   GeneratedAdapter,
 } from '@payloadcms/plugin-cloud-storage/types'
-import type { Config, Field, Plugin, UploadCollectionSlug } from 'payload'
-import type { UTApiOptions } from 'uploadthing/types'
-
+import type { Config, Plugin, UploadCollectionSlug } from 'payload'
+// cloud-storage
+import { ConfigOptions, UploadApiOptions, v2 as cloudinary } from 'cloudinary'
 import { cloudStoragePlugin } from '@payloadcms/plugin-cloud-storage'
-import { UTApi } from 'uploadthing/server'
+// handler
+import { getGenerateURL } from './generateURL'
+import { getHandleDelete } from './handleDelete'
+import { getHandleUpload } from './handleUpload'
+import { getHandler } from './staticHandler'
+import { CloudinaryService } from 'payload-cloudinary-plugin/dist/services/cloudinaryService'
+import { DEFAULT_REQUIRED_FIELDS, GROUP_NAME, mapRequiredFields } from './utilities'
 
-import { generateURL } from './generateURL.js'
-import { getHandleDelete } from './handleDelete.js'
-import { getHandleUpload } from './handleUpload.js'
-import { getHandler } from './staticHandler.js'
+export interface CloudiaryStorageOptions {
+  acl?: 'Private' | 'Public'
 
-export type UploadthingStorageOptions = {
   /**
-   * Collection options to apply the adapter to.
+   * Collection options to apply the S3 adapter to.
    */
   collections: Partial<Record<UploadCollectionSlug, Omit<CollectionOptions, 'adapter'> | true>>
-
   /**
    * Whether or not to enable the plugin
    *
    * Default: true
    */
   enabled?: boolean
-
   /**
-   * Uploadthing Options
+   * Whether or not to disable local storage
+   *
+   * @default true
    */
-  options: {
-    /**
-     * @default 'public-read'
-     */
-    acl?: ACL
-  } & UTApiOptions
+  disableLocalStorage?: boolean
+
+  configs: ConfigOptions
+
+  options: UploadApiOptions
 }
 
-type UploadthingPlugin = (uploadthingStorageOptions: UploadthingStorageOptions) => Plugin
+type CloudiaryStoragePlugin = (cloudiaryStorageArgs: CloudiaryStorageOptions) => Plugin
 
-/** NOTE: not synced with uploadthing's internal types. Need to modify if more options added */
-export type ACL = 'private' | 'public-read'
-
-export const uploadthingStorage: UploadthingPlugin =
-  (uploadthingStorageOptions: UploadthingStorageOptions) =>
+export const cloudiaryStorage: CloudiaryStoragePlugin =
+  (cloudiaryStorageOptions: CloudiaryStorageOptions) =>
   (incomingConfig: Config): Config => {
-    if (uploadthingStorageOptions.enabled === false) {
+    if (cloudiaryStorageOptions.enabled === false) {
       return incomingConfig
     }
 
-    // Default ACL to public-read
-    if (!uploadthingStorageOptions.options.acl) {
-      uploadthingStorageOptions.options.acl = 'public-read'
-    }
-
-    const adapter = uploadthingInternal(uploadthingStorageOptions)
+    const adapter = cloudiaryStorageInternal(cloudiaryStorageOptions)
 
     // Add adapter to each collection option object
     const collectionsWithAdapter: CloudStoragePluginOptions['collections'] = Object.entries(
-      uploadthingStorageOptions.collections,
+      cloudiaryStorageOptions.collections,
     ).reduce(
       (acc, [slug, collOptions]) => ({
         ...acc,
         [slug]: {
           ...(collOptions === true ? {} : collOptions),
-
-          // Disable payload access control if the ACL is public-read or not set
-          // ...(uploadthingStorageOptions.options.acl === 'public-read'
-          //   ? { disablePayloadAccessControl: true }
-          //   : {}),
-
           adapter,
         },
       }),
@@ -101,31 +90,50 @@ export const uploadthingStorage: UploadthingPlugin =
     })(config)
   }
 
-function uploadthingInternal(options: UploadthingStorageOptions): Adapter {
-  const fields: Field[] = [
-    {
-      name: '_key',
-      type: 'text',
-      admin: {
-        hidden: true,
-      },
-    },
-  ]
+function cloudiaryStorageInternal({ acl, configs, options }: CloudiaryStorageOptions): Adapter {
+  return ({ collection, prefix }): GeneratedAdapter => {
+    let storageService: null | CloudinaryService = null
 
-  return (): GeneratedAdapter => {
-    const {
-      options: { acl = 'public-read', ...utOptions },
-    } = options
+    const getStorageClient = (): typeof cloudinary => {
+      cloudinary.config(configs)
 
-    const utApi = new UTApi(utOptions)
+      return cloudinary
+    }
+
+    const getStorageService = (): CloudinaryService => {
+      if (storageService) {
+        return storageService
+      }
+
+      storageService = new CloudinaryService(configs, options)
+      return storageService
+    }
 
     return {
-      name: 'uploadthing',
-      fields,
-      generateURL,
-      handleDelete: getHandleDelete({ utApi }),
-      handleUpload: getHandleUpload({ acl, utApi }),
-      staticHandler: getHandler({ utApi }),
+      name: 'cloudiary',
+      fields: [
+        {
+          name: GROUP_NAME,
+          type: 'group',
+          fields: [...mapRequiredFields()],
+          admin: { readOnly: true },
+        },
+      ],
+      generateURL: getGenerateURL({ getStorageClient, cloud_name: configs.cloud_name, options }),
+      handleDelete: getHandleDelete({ getStorageService, cloud_name: configs.cloud_name, options }),
+      handleUpload: getHandleUpload({
+        acl,
+        collection,
+        getStorageService,
+        cloud_name: configs.cloud_name,
+        options,
+      }),
+      staticHandler: getHandler({
+        collection,
+        getStorageClient,
+        cloud_name: configs.cloud_name,
+        options,
+      }),
     }
   }
 }

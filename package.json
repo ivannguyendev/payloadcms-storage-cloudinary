@@ -1,22 +1,13 @@
 {
-  "name": "@payloadcms/storage-uploadthing",
-  "version": "3.24.0",
-  "description": "Payload storage adapter for uploadthing",
-  "homepage": "https://payloadcms.com",
+  "name": "@ivanistao/payloadcms-storage-cloudinary",
+  "version": "1.0.0",
+  "description": "Payload storage adapter for cloudinary",
   "repository": {
     "type": "git",
-    "url": "https://github.com/payloadcms/payload.git",
-    "directory": "packages/storage-uploadthing"
+    "url": "https://github.com/ivanistao/payloadcms-storage-cloudinary.git",
   },
   "license": "MIT",
-  "author": "Payload <dev@payloadcms.com> (https://payloadcms.com)",
-  "maintainers": [
-    {
-      "name": "Payload",
-      "email": "info@payloadcms.com",
-      "url": "https://payloadcms.com"
-    }
-  ],
+  "author": "https://github.com/ivanistao",
   "type": "module",
   "exports": {
     ".": {
@@ -41,14 +32,10 @@
     "prepublishOnly": "pnpm clean && pnpm turbo build"
   },
   "dependencies": {
-    "@payloadcms/plugin-cloud-storage": "workspace:*",
-    "uploadthing": "7.3.0"
-  },
-  "devDependencies": {
-    "payload": "workspace:*"
-  },
-  "peerDependencies": {
-    "payload": "workspace:*"
+    "@payloadcms/plugin-cloud-storage": "^3.24.0",
+    "cloudinary": "^2.5.1",
+    "payload": "^3.24.0",
+    "payload-cloudinary-plugin": "^0.1.14"
   },
   "engines": {
     "node": "^18.20.2 || >=20.9.0"
@@ -63,5 +50,8 @@
     },
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
   }
 }

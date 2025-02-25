@@ -1,66 +1,22 @@
 import type { StaticHandler } from '@payloadcms/plugin-cloud-storage/types'
-import type { Where } from 'payload'
-import type { UTApi } from 'uploadthing/server'
+import type { CollectionConfig } from 'payload'
+import { v2 as cloudinary, UploadApiOptions } from 'cloudinary'
 
-import { getKeyFromFilename } from './utilities.js'
-
-type Args = {
-  utApi: UTApi
+interface Args {
+  collection: CollectionConfig
+  getStorageClient: () => typeof cloudinary
+  cloud_name?: string
+  options?: UploadApiOptions
 }
 
-export const getHandler = ({ utApi }: Args): StaticHandler => {
-  return async (req, { doc, params: { collection, filename } }) => {
+export const getHandler = ({ cloud_name, getStorageClient }: Args): StaticHandler => {
+  return async (req, { doc, params }) => {
     try {
-      const collectionConfig = req.payload.collections[collection]?.config
-      let retrievedDoc = doc
-
-      if (!retrievedDoc) {
-        const or: Where[] = [
-          {
-            filename: {
-              equals: filename,
-            },
-          },
-        ]
-
-        if (collectionConfig.upload.imageSizes) {
-          collectionConfig.upload.imageSizes.forEach(({ name }) => {
-            or.push({
-              [`sizes.${name}.filename`]: {
-                equals: filename,
-              },
-            })
-          })
-        }
-
-        const result = await req.payload.db.findOne({
-          collection,
-          req,
-          where: { or },
-        })
-
-        if (result) {
-          retrievedDoc = result
-        }
-      }
-
-      if (!retrievedDoc) {
-        return new Response(null, { status: 404, statusText: 'Not Found' })
-      }
-
-      const key = getKeyFromFilename(retrievedDoc, filename)
-
-      if (!key) {
-        return new Response(null, { status: 404, statusText: 'Not Found' })
-      }
-
-      const { url: signedURL } = await utApi.getSignedURL(key)
-
-      if (!signedURL) {
-        return new Response(null, { status: 404, statusText: 'Not Found' })
-      }
-
-      const response = await fetch(signedURL)
+      const client = getStorageClient()
+      const filenameSlugs = params.filename.split('-_')
+      const original_filename = filenameSlugs.pop()
+      const public_id = filenameSlugs.join('/')
+      const response = await fetch(client.url(public_id, { cloud_name }))
 
       if (!response.ok) {
         return new Response(null, { status: 404, statusText: 'Not Found' })
