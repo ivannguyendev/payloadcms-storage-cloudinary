@@ -4,10 +4,10 @@
   "description": "Payload storage adapter for cloudinary",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ivanistao/payloadcms-storage-cloudinary.git",
+    "url": "https://github.com/ivannguyendev/payloadcms-storage-cloudinary.git"
   },
   "license": "MIT",
-  "author": "https://github.com/ivanistao",
+  "author": "https://github.com/ivannguyendev",
   "type": "module",
   "exports": {
     ".": {

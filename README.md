@@ -4,15 +4,15 @@ This plugin integrates Cloudinary with PayloadCMS v3, enabling seamless media up
 
 ## Current status
 
-[![codeql](https://github.com/ivanistao/payloadcms-storage-cloudinary/actions/workflows/codeql.yml/badge.svg)](https://github.com/ivanistao/payloadcms-storage-cloudinary/actions/workflows/codeql.yml)
+[![codeql](https://github.com/ivannguyendev/payloadcms-storage-cloudinary/actions/workflows/codeql.yml/badge.svg)](https://github.com/ivannguyendev/payloadcms-storage-cloudinary/actions/workflows/codeql.yml)
 
-[![test](https://github.com/ivanistao/payloadcms-storage-cloudinary/actions/workflows/test.yml/badge.svg)](https://github.com/ivanistao/payloadcms-storage-cloudinary/actions/workflows/test.yml)
+[![test](https://github.com/ivannguyendev/payloadcms-storage-cloudinary/actions/workflows/test.yml/badge.svg)](https://github.com/ivannguyendev/payloadcms-storage-cloudinary/actions/workflows/test.yml)
 
-[![publish](https://github.com/ivanistao/payloadcms-storage-cloudinary/actions/workflows/publish.yml/badge.svg)](https://github.com/ivanistao/payloadcms-storage-cloudinary/actions/workflows/publish.yml)
+[![publish](https://github.com/ivannguyendev/payloadcms-storage-cloudinary/actions/workflows/publish.yml/badge.svg)](https://github.com/ivannguyendev/payloadcms-storage-cloudinary/actions/workflows/publish.yml)
 
-[![GitHub Super-Linter](https://github.com/ivanistao/payloadcms-storage-cloudinary/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/ivanistao/payloadcms-storage-cloudinary/actions/workflows/linter.yml)
+[![GitHub Super-Linter](https://github.com/ivannguyendev/payloadcms-storage-cloudinary/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/ivannguyendev/payloadcms-storage-cloudinary/actions/workflows/linter.yml)
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/320b671855ce462d9c21b3769486c256)](https://app.codacy.com/gh/ivanistao/payloadcms-storage-cloudinary/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/320b671855ce462d9c21b3769486c256)](https://app.codacy.com/gh/ivannguyendev/payloadcms-storage-cloudinary/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 
 ## Installation
